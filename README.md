@@ -14,4 +14,12 @@ python normal_fmri.py
 ```bash
 python group_fmri_data.py
 ```
-
+# Extract features
+### 1) Extract image features
+```bash
+python clipvision_extract_features.py
+```
+### 2) Extract text features
+```bash
+python cliptext_extract_features.py
+```
