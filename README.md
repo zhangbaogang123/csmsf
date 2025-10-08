@@ -5,10 +5,13 @@ Official repository for the paper "fMRI-based Cross-subject Visual Reconstructio
 ```bash
 python down_data.py
 ```
-### 2、fmri data preprocessing and standardization
+### 2) fmri data preprocessing and standardization
 ```bash
 python processed_data.py
 python normal_fmri.py
 ```
-
+### 3) group fmri
+```bash
+python group_fmri_data.py
+```
 
