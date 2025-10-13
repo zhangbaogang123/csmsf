@@ -31,4 +31,9 @@ python export_npy_images.py
 python extract_latent_features.py
 python normal_latent_features.py
 ```
+# Train
+### 1) train fmri to image
+```bash
+python pl_train_clip.py
+```
 
