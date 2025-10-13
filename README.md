@@ -21,5 +21,6 @@ python clipvision_extract_features.py
 ```
 ### 2) Extract text features
 ```bash
+python processed_captions.py
 python cliptext_extract_features.py
 ```
