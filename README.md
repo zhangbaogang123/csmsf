@@ -24,3 +24,11 @@ python clipvision_extract_features.py
 python processed_captions.py
 python cliptext_extract_features.py
 ```
+
+### 3) Extract VAE features
+```bash
+python export_npy_images.py
+python extract_latent_features.py
+python normal_latent_features.py
+```
+
