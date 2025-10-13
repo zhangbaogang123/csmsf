@@ -36,7 +36,7 @@ python normal_latent_features.py
 ```bash
 python pl_train_clip.py
 ```
-### 1) train fmri to text
+### 2) train fmri to text
 ```bash
 python pl_train_text.py
 ```
