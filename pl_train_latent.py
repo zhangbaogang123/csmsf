@@ -9,9 +9,7 @@ os.environ["NCCL_DEBUG"] = "INFO"
 os.environ["NCCL_ASYNC_ERROR_HANDLING"] = "1"
 os.environ["NCCL_P2P_DISABLE"] = "1"
 os.environ["NCCL_IB_DISABLE"] = "1"
-# os.environ["NCCL_SOCKET_IFNAME"] = "eth0"
 from dataset_latent import FmriDataSet
-# from dataset_flattent import FmriDataSet
 import torch
 from torch.utils.data import DataLoader, random_split
 from pl_model_latent import FineTunedModel
@@ -26,7 +24,6 @@ from lightning.pytorch.strategies import DDPStrategy
 import lightning.pytorch as pl
 import numpy as np
 import random
-from torch.utils.data.distributed import DistributedSampler
 from datetime import timedelta
 
 

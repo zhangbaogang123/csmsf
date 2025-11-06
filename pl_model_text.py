@@ -26,31 +26,13 @@ class ElementwiseComparisonLoss(nn.Module):
         if tensor1.shape != tensor2.shape:
             raise ValueError("The shapes of both tensors must be the same.")
 
-            # 计算绝对差异
-        abs_diff = torch.abs(tensor1 - tensor2)
-
-        # 判断是否小于阈值，并计算不一样的元素数量
-        diff_count = torch.sum(abs_diff >= self.epsilon).float()
-
-        # 添加一个微小的可导部分
-        smooth_diff = torch.sum(abs_diff ** 2)
-
-        # 总损失
-        loss = diff_count + 1e-6 * smooth_diff
-        max_count = tensor1.numel()
-
-        # 将损失进行缩放
-        # scaled_loss = loss / max_count
         mse_loss = nn.MSELoss()
         mse_loss_value = mse_loss(tensor1, tensor2)
         cos_loss = CosineSimilarityLoss()
         cos_loss_value = cos_loss(tensor1, tensor2)
 
-        # loss = 0.5 * scaled_loss + 0.5 * mse_loss_value
-        # loss = 0.3 * cos_loss_value + 0.3 * mse_loss_value + 0.2 * mv_loss_value
         mse_cos_loss = 0.5 * mse_loss_value * 1000 + cos_loss_value
-        # loss = mse_loss_value
-        # loss = loss
+
         return {"mse_cos_loss": mse_cos_loss, "mse_loss": mse_loss_value,
                 "cos_loss_value": cos_loss_value}
 
@@ -60,25 +42,15 @@ class CosineSimilarityLoss(pl.LightningModule):
         super().__init__()
 
     def forward(self, tensor1, tensor2):
-        # 计算余弦相似度
-        similarity = nn.functional.cosine_similarity(tensor1, tensor2, dim=-1)  # 假设输入是两个形状为 (batch_size, 256, 768) 的张量
-
-        # 将余弦相似度映射到 [0, 1] 范围内
+        similarity = nn.functional.cosine_similarity(tensor1, tensor2, dim=-1)
         similarity = (similarity + 1.0) / 2.0
-
-        # 计算损失（可以根据需求选择不同的损失函数）
-        loss = 1.0 - similarity  # 例如，使用 1 减去相似性作为损失
-
+        loss = 1.0 - similarity
         return loss.mean()
 
 
 def cos_loss(preds, targs):
-    similarity = nn.functional.cosine_similarity(preds, targs, dim=-1)  # 假设输入是两个形状为 (batch_size, 256, 768) 的张量
-
-    # 将余弦相似度映射到 [0, 1] 范围内
+    similarity = nn.functional.cosine_similarity(preds, targs, dim=-1)
     similarity = (similarity + 1.0) / 2.0
-
-    # 计算损失（可以根据需求选择不同的损失函数）
     loss = 1.0 - similarity
     return loss.mean()
 
@@ -95,7 +67,6 @@ class FineTunedModel(pl.LightningModule):
         self.use_sub_info = use_sub_info
         self.subject_list = subject_list
         self.lr = lr
-        # self.sub_num = sub_num
         self.weight_decay = weight_decay
         self.tf_drop = tf_drop
         self.projector = nn.Sequential(
@@ -127,24 +98,18 @@ class FineTunedModel(pl.LightningModule):
                 x = fmri_dict[key_input]  # [B, N, D]
                 B = x.shape[0]
 
-                # 每个受试者一个 mask
                 unique_subj_ids = torch.unique(subj_id)
-                group_outputs = [None] * B  # 用于恢复顺序
+                group_outputs = [None] * B
 
                 for s_id in unique_subj_ids:
                     s_id = s_id.item()
                     key_model = f"sub{s_id}_{num_windows}_{window_size}"
-
-                    # 找出当前受试者对应的样本位置
-                    indices = (subj_id == s_id).nonzero(as_tuple=False).squeeze(1)  # shape: [n_i]
+                    indices = (subj_id == s_id).nonzero(as_tuple=False).squeeze(1)
                     x_group = x[indices]  # [n_i, N, D]
-                    out_group = self.pretrained.multi_scales[key_model](x_group)  # [n_i, N, D']
-
-                    # 保存到 group_outputs 的正确位置
+                    out_group = self.pretrained.multi_scales[key_model](x_group)
                     for i, idx in enumerate(indices):
-                        group_outputs[idx] = out_group[i:i + 1]  # 保留 batch dim
+                        group_outputs[idx] = out_group[i:i + 1]
 
-                # 重新拼接为 [B, N, D']
                 feature_tensor = torch.cat(group_outputs, dim=0)
                 features.append(feature_tensor)
         else:
@@ -169,7 +134,6 @@ class FineTunedModel(pl.LightningModule):
         label = text
         label = label.squeeze()
         label = label.squeeze()
-        # data = data.permute(0, 2, 1).contiguous()
         x_1, x_2 = self(fmri_dict, subject_id)
 
         loss_1 = cos_loss(x_1, label)
@@ -187,7 +151,6 @@ class FineTunedModel(pl.LightningModule):
         return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
-        # print("66666:", type(self.logger))
         fmri_dict, text, subject_id = batch
         label = text
         label = label.squeeze()
@@ -210,7 +173,6 @@ class FineTunedModel(pl.LightningModule):
                 continue
             if any(nd in name for nd in ["bias", "pos_embed", "scale_embed", "norm", "ln", "cls_token", "scale_w"]):
                 no_decay.append(param)
-                print("88888888888888800000000000000:", name)
             else:
                 decay.append(param)
 

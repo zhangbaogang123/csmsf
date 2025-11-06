@@ -8,11 +8,11 @@ os.environ["NCCL_P2P_DISABLE"] = "1"
 os.environ["NCCL_IB_DISABLE"] = "1"
 os.environ["NCCL_SHM_DISABLE"] = "1"
 
-from dataset_img_text import FmriDataSet
+from dataset_text import FmriDataSet
 import torch
 from torch.utils.data import DataLoader
 from pl_model_text import FineTunedModel
-from pl_model_tranfomer_con_loss import Pct
+from pl_model_clip import Pct
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.callbacks import LearningRateMonitor
 import datetime

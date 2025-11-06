@@ -2,15 +2,12 @@
 from torch.utils.data import Dataset
 import numpy as np
 import os
-import concurrent.futures
 import torch
-from collections import defaultdict
 import re
-import time
 from functools import lru_cache
 
 
-@lru_cache(maxsize=1)  # 可根据可用内存调节
+@lru_cache(maxsize=1)
 def cached_load_npy(path):
     with open(path, "rb") as f:
         return np.load(f, allow_pickle=False)
@@ -44,16 +41,15 @@ class FmriDataSet(Dataset):
         self.fmri_datas_dict = {f"{n}_{w}": [] for (n, w) in self.multi_scale_size}
 
         for sub in subjects:
-            # fmri_dir = "/root/data-tmp/data/processed_data/subj{:02d}/fsaverage_not_mean_1000_new_512_128/train/".format(
-            #     sub)
+
             for (n_win, win_size) in self.multi_scale_size:
                 key = f"{n_win}_{win_size}"
                 scale_tag = f"fsaverage_not_mean_1000_new_{n_win}_{win_size}"
-                fmri_dir = f"/root/data-tmp/data/processed_data/subj{sub:02d}/{scale_tag}/{split}/"
+                fmri_dir = f"/your_data_dir/data/processed_data/subj{sub:02d}/{scale_tag}/{split}/"
                 fmri_files = [os.path.join(fmri_dir, f) for f in os.listdir(fmri_dir)]
                 self.fmri_datas_dict[key].extend(fmri_files)
 
-            text_dir = f"/root/data-tmp/data/extracted_features/subj{sub:02d}/fsaverage_not_mean_1000/{split}_text/"
+            text_dir = f"/your_data_dir/data/extracted_features/subj{sub:02d}/fsaverage_not_mean_1000/{split}_text/"
 
             text_files = [os.path.join(text_dir, f) for f in os.listdir(text_dir)]
 
@@ -99,16 +95,6 @@ class FmriDataSet(Dataset):
             subject_id = int(subject_id)
         else:
             print("not match")
-        match = re.search(r'_(\d+)\.npy$', path)
-        if match:
-            number = int(match.group(1))
-            # print(number)  # 输出：103
-        else:
-            print("not match")
-
-        # print(f"Data load time for sample {item}: {time.time() - t0:.3f}s")
-        # print(f"[PID {os.getpid()}] loading sample {item}")
-        # print(f"[PID {os.getpid()}] loading sample {item}, load time: {time.time() - t0:.3f}s")
         return fmri_multi_scale, text, subject_id
 
     def __len__(self):

@@ -29,10 +29,10 @@ net.clip = net.clip.to(device)
 for sub in range(8):
     sub = sub + 1
     train_caps = np.load(
-        '/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_train_cap_sub{}.npy'.format(
+        '/your_data-dir/data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_train_cap_sub{}.npy'.format(
             sub, sub))
     test_caps = np.load(
-        '/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_test_cap_sub{}.npy'.format(
+        '/your_data-dir/data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_test_cap_sub{}.npy'.format(
             sub,
             sub))
 
@@ -40,9 +40,9 @@ for sub in range(8):
 
     train_clip = np.zeros((num_train, num_embed, num_features))
     test_clip = np.zeros((num_test, num_embed, num_features))
-    save_train_path = "data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/train_text_2/".format(
+    save_train_path = "/your_data-dir/data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/train_text_2/".format(
         sub)
-    save_test_path = "data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/test_text_2/".format(
+    save_test_path = "/your_data-dir/data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/test_text_2/".format(
         sub)
     os.makedirs(save_train_path, exist_ok=True)
     os.makedirs(save_test_path, exist_ok=True)

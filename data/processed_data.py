@@ -71,20 +71,17 @@ s_nums = [40, 40, 32, 30, 40, 32, 40, 30]
 # 感兴趣区
 l_voxel_indices = np.empty((0, 0)).astype(int)
 r_voxel_indices = np.empty((0, 0)).astype(int)
-base_label_dir = "/root/data-tmp/data/nsddata/freesurfer/fsaverage/label"
+base_label_dir = "/your_data_dir/data/nsddata/freesurfer/fsaverage/label"
 all_files = os.listdir(base_label_dir)
 
 probmap_files_found = sorted([f for f in all_files if "probmap" in f])
 import json
-# 读取上次保存的顺序（键名是“去扩展名”的 ROI 名称，如 'lh.V1d.probmap'）
-roi_order_path = "/root/brain-diffuser/gnn/roi_order_by_b_start.json"
+roi_order_path = "roi_order_by_b_start.json"
 with open(roi_order_path, "r", encoding="utf-8") as f:
-    roi_order = json.load(f)  # list[str], 例如 ['lh.probmap_EBA', 'lh.probmap_V1v', ...]
+    roi_order = json.load(f)
 
-# 建立 {去扩展名: 文件名} 的映射，便于按保存顺序重排
 name_to_file = {os.path.splitext(f)[0]: f for f in probmap_files_found}
 
-# 一致性检查（可改为 raise）
 missing = [name for name in roi_order if name not in name_to_file]
 extra   = [name for name in name_to_file if name not in roi_order]
 if missing:
@@ -92,31 +89,26 @@ if missing:
 if extra:
     print(f"[WARN] 目录中存在未在订单列清单中的 ROI：{extra}（将被忽略）")
 
-# 让 probmap_files 严格按保存的顺序
 probmap_files = [name_to_file[name] for name in roi_order if name in name_to_file]
 
 
 
-# probmap_files = sorted([f for f in all_files if "probmap" in f])
 for file_name in probmap_files:
-    # 构建完整的文件路径
     label_path = os.path.join(base_label_dir, file_name)
     mask = nib.load(label_path)
     data = mask.get_fdata().squeeze()
     voxel_indices = np.where(data >= 0.7)[0]
     if file_name.startswith("lh."):
         l_voxel_indices = np.append(l_voxel_indices, voxel_indices)
-        # print()
     elif file_name.startswith("rh."):
         r_voxel_indices = np.append(r_voxel_indices, voxel_indices)
 num_voxel = len(l_voxel_indices) + len(r_voxel_indices)
-# 加载刺激图片
-f_stim = h5py.File('/root/data-pub/fMRI/NSD/natural-scenes-dataset/nsddata_stimuli/stimuli/nsd/nsd_stimuli.hdf5', 'r')
+f_stim = h5py.File('/your_data-dir/data/nsddata_stimuli/stimuli/nsd/nsd_stimuli.hdf5', 'r')
 stim = f_stim['imgBrick'][:]
 
 print("Stimuli are loaded.")
 
-stim_order_f = '/root/data-pub/fMRI/NSD/natural-scenes-dataset/nsddata/experiments/nsd/nsd_expdesign.mat'
+stim_order_f = '/your_data-dir/data/nsddata/experiments/nsd/nsd_expdesign.mat'
 stim_order = loadmat(stim_order_f)
 
 for sub in range(9):
@@ -150,8 +142,8 @@ for sub in range(9):
 
     fmri = np.zeros((num_trials, num_voxel, 4)).astype(np.float32)
     # betas_dir = '/root/data-pub/fMRI/NSD/natural-scenes-dataset/nsddata_betas/ppdata/subj{:02d}/betas_fithrf_GLMdenoise_RR/'.format(sub)
-    betas_dir="/root/data-tmp/new_data/nsddata_betas/ppdata/subj{:02d}/fsaverage/betas_fithrf_GLMdenoise_RR/".format(sub)
-    surf_base_dir = "/root/data-tmp/data/nsddata/freesurfer/fsaverage/surf/"
+    betas_dir="/your_data-dir/data/nsddata_betas/ppdata/subj{:02d}/fsaverage/betas_fithrf_GLMdenoise_RR/".format(sub)
+    surf_base_dir = "/your_data-dir/data/nsddata/freesurfer/fsaverage/surf/"
     l_surf_dir = surf_base_dir + "lh.pial"
     r_surf_dir = surf_base_dir + "rh.pial"
     l_vertices, l_faces = nib.freesurfer.read_geometry(l_surf_dir)
@@ -191,23 +183,14 @@ for sub in range(9):
         stim_array[i] = stim[idx]
         fmri_array[i] = fmri[my_sig_train[i]]
         print(i)
-    save_dir = f"/root/data-tmp/new_data/processed_data/subj{sub:02d}/fsaverage_not_mean_1000"
-    os.makedirs(save_dir, exist_ok=True)  # ✅ 如果目录不存在则创建
+    save_dir = f"/your_data-dir/data/processed_data/subj{sub:02d}/fsaverage_not_mean_1000"
+    os.makedirs(save_dir, exist_ok=True)
 
     fmri_path = os.path.join(save_dir, f"nsd_train_fmriavg_nsdgeneral_sub{sub}.npy")
     np.save(fmri_path, fmri_array)
 
     stim_path = os.path.join(save_dir, f"nsd_train_stim_sub{sub}.npy")
     np.save(stim_path, stim_array)
-    # np.save(
-    #     '/home/zbg/brain-diffuser/data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_train_fmriavg_nsdgeneral_sub{}.npy'.format(
-    #         sub,
-    #         sub),
-    #     fmri_array)
-    # np.save(
-    #     '/home/zbg/brain-diffuser/data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_train_stim_sub{}.npy'.format(
-    #         sub, sub),
-    #     stim_array)
 
     print("Training data is saved.")
 
@@ -221,8 +204,8 @@ for sub in range(9):
         fmri_sig_test_idx_stored_mean = fmri_sig_test_idx_stored.mean(axis=0)
         fmri_array[i] = fmri_sig_test_idx_stored_mean
         print(i)
-    save_dir = f"/root/data-tmp/new_data/processed_data/subj{sub:02d}/fsaverage_not_mean_1000"
-    os.makedirs(save_dir, exist_ok=True)  # ✅ 如果目录不存在则创建
+    save_dir = f"/your_data-dir/data/processed_data/subj{sub:02d}/fsaverage_not_mean_1000"
+    os.makedirs(save_dir, exist_ok=True)
 
     fmri_path = os.path.join(save_dir, f"nsd_test_fmriavg_nsdgeneral_sub{sub}.npy")
     np.save(fmri_path, fmri_array)

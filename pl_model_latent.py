@@ -73,7 +73,6 @@ class FineTunedModel(pl.LightningModule):
         self.use_sub_info = use_sub_info
         self.subject_list = subject_list
         self.lr = lr
-        # self.sub_num = sub_num
         self.weight_decay = weight_decay
         self.tf_drop = tf_drop
         self.projector = nn.Sequential(
@@ -105,27 +104,26 @@ class FineTunedModel(pl.LightningModule):
                 x = fmri_dict[key_input]  # [B, N, D]
                 B = x.shape[0]
 
-                # 每个受试者一个 mask
                 unique_subj_ids = torch.unique(subj_id)
-                group_outputs = [None] * B  # 用于恢复顺序
+                group_outputs = [None] * B
 
                 for s_id in unique_subj_ids:
                     s_id = s_id.item()
                     key_model = f"sub{s_id}_{num_windows}_{window_size}"
 
-                    indices = (subj_id == s_id).nonzero(as_tuple=False).squeeze(1)  # shape: [n_i]
-                    x_group = x[indices]  # [n_i, N, D]
-                    out_group = self.pretrained.multi_scales[key_model](x_group)  # [n_i, N, D']
+                    indices = (subj_id == s_id).nonzero(as_tuple=False).squeeze(1)
+                    x_group = x[indices]
+                    out_group = self.pretrained.multi_scales[key_model](x_group)
 
                     for i, idx in enumerate(indices):
-                        group_outputs[idx] = out_group[i:i + 1]  # 保留 batch dim
+                        group_outputs[idx] = out_group[i:i + 1]
 
                 feature_tensor = torch.cat(group_outputs, dim=0)
                 features.append(feature_tensor)
         else:
             for num_windows, window_size in self.multi_scale_size:
                 key = f"{num_windows}_{window_size}"
-                fmri_input = fmri_dict[key]  # [B, N, D]
+                fmri_input = fmri_dict[key]
                 feature = self.pretrained.multi_scales[key](fmri_input)
                 features.append(feature)
 
@@ -149,7 +147,6 @@ class FineTunedModel(pl.LightningModule):
 
         label = latent
         label = label.squeeze()
-        # data = data.permute(0, 2, 1).contiguous()
         x = self(fmri_dict, subject_id)
 
         loss_1 = cos_loss(x, label)
@@ -179,9 +176,9 @@ class FineTunedModel(pl.LightningModule):
         if batch_idx == 0:
             fig, ax = plt.subplots(figsize=(18, 6))
             ax.plot(x[0, 0, 32, :].float().cpu().numpy(), 'r', marker='o',
-                    label='Predicted')  # Red for predicted
+                    label='Predicted')  #
             ax.plot(latent[0, 0, 32, :].float().cpu().numpy(), 'g', marker='o', label='True',
-                    alpha=0.5)  # Green for ground truth
+                    alpha=0.5)
             ax.legend()
             tensorboard = self.logger.experiment
             tensorboard.add_figure('Predicted_vs_True', fig, global_step=self.current_epoch)
@@ -197,7 +194,6 @@ class FineTunedModel(pl.LightningModule):
                 continue
             if any(nd in name for nd in ["bias", "pos_embed", "scale_embed", "norm", "ln", "cls_token", "scale_w"]):
                 no_decay.append(param)
-                print("88888888888888800000000000000:", name)
             else:
                 decay.append(param)
 
@@ -218,7 +214,7 @@ class FineTunedModel(pl.LightningModule):
                 pct_start=2 / self.trainer.max_epochs,
                 anneal_strategy='cos'
             ),
-            "interval": "step",  # 注意，OneCycleLR一定是按step
+            "interval": "step",
             "frequency": 1,
             "name": "one_cycle_lr"
         }

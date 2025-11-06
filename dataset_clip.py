@@ -53,17 +53,17 @@ class FmriDataSet(Dataset):
 
         def custom_sort_fmri(file_path):
             parts = file_path.split('/')
-            file_name = parts[-1]  # 获取文件名，例如 'sub2_fmri_test_0.npy'
-            sub_num = int(file_name.split('_')[0][3:])  # 提取 'sub' 后面的数字
-            test_num = int(file_name.split('_')[-1].split('.')[0])  # 提取 'test' 后面的数字
+            file_name = parts[-1]
+            sub_num = int(file_name.split('_')[0][3:])
+            test_num = int(file_name.split('_')[-1].split('.')[0])
             return (sub_num, test_num)
 
         def custom_sort_img(file_path):
             parts = file_path.split('/')
             file_name = parts[-1]
             parts = file_name.split('_')
-            first_num = int(parts[2])  # 提取第一个数字
-            second_num = int(parts[3].split('.')[0])  # 提取第二个数字
+            first_num = int(parts[2])
+            second_num = int(parts[3].split('.')[0])
             return (first_num, second_num)
 
         for k in self.fmri_datas_dict:
@@ -74,7 +74,6 @@ class FmriDataSet(Dataset):
         self.sample_len = len(self.img_datas_list)
 
     def __getitem__(self, item):
-        # t0 = time.time()
         fmri_multi_scale = {}
         path = ""
         for key in self.fmri_datas_dict:
@@ -89,12 +88,6 @@ class FmriDataSet(Dataset):
         if match:
             subject_id = match.group(1)
             subject_id = int(subject_id)
-        else:
-            print("not match")
-        match = re.search(r'_(\d+)\.npy$', path)
-        if match:
-            number = int(match.group(1))
-            # print(number)  # 输出：103
         else:
             print("not match")
 

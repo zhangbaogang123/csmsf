@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 
 SUBJECTS = list(range(1, 9))
-BASE_FMT = "/root/data-tmp/new_data/processed_data/subj{sid:02d}/fsaverage_not_mean_1000"
+BASE_FMT = "/your_data-dir/data/processed_data/subj{sid:02d}/fsaverage_not_mean_1000"
 
 OUT_DIR_TRAIN = "train_images"
 OUT_DIR_TEST = "test_images"

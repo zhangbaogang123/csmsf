@@ -11,7 +11,7 @@ import os
 import numpy as np
 
 # -------------------- 配置 --------------------
-BASE = "/root/data-tmp/new_data/processed_data"
+BASE = "/your_data_dir/data/processed_data"
 TEMPLATE = BASE + "/subj{sid:02d}/fsaverage_not_mean_1000"
 SAVE_BASE = BASE + "/subj{sid:02d}/fsaverage_not_mean_1000_new"
 STATS_PATH = "/metadata/fmri_data_stats.npz"  #
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         save_per_sample(train_n, save_train_dir, prefix=f"sub{sid}_fmri_train")
         save_per_sample(test_n,  save_test_dir,  prefix=f"sub{sid}_fmri_test")
 
-        # 可选：也保存整合后的数组
+
         # np.save(os.path.join(SAVE_BASE.format(sid=sid), f"sub{sid}_train_standardized.npy"), train_n)
         # np.save(os.path.join(SAVE_BASE.format(sid=sid), f"sub{sid}_test_standardized.npy"),  test_n)
 

@@ -17,9 +17,9 @@ save_num="v9121"
 use_flattent=False
 def custom_sort_fmri(file_path):
     parts = file_path.split('/')
-    file_name = parts[-1]  # 获取文件名，例如 'sub2_fmri_test_0.npy'
-    sub_num = int(file_name.split('_')[0][3:])  # 提取 'sub' 后面的数字
-    test_num = int(file_name.split('_')[-1].split('.')[0])  # 提取 'test' 后面的数字
+    file_name = parts[-1]
+    sub_num = int(file_name.split('_')[0][3:])
+    test_num = int(file_name.split('_')[-1].split('.')[0])
     return (sub_num, test_num)
 
 
@@ -60,7 +60,6 @@ max_vals = torch.tensor(np.load("max_vals.npy"), dtype=torch.float32).to(device)
 range_vals = max_vals - min_vals
 range_vals[range_vals == 0] = 1.0  # 防止除以 0
 
-# reshape 为 (1, 4, 64, 64)，便于广播
 min_vals = min_vals.view(1, 4, 64, 64)
 range_vals = range_vals.view(1, 4, 64, 64)
 out_file = "your_out_dir/results/latent/sub_0{}/{}".format(sub,save_num)
@@ -99,7 +98,7 @@ split="test"
 if use_flattent:
 
     rng = np.random.RandomState(seed=42)
-    perm = rng.permutation(22492)  # 打乱后的顶点顺序
+    perm = rng.permutation(22492)  #
     inv_perm = np.argsort(perm)
     windows_by_scale = {}
     for (n, w) in multi_scale_size:

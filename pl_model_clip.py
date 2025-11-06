@@ -34,7 +34,6 @@ class TransformerWithCLS(pl.LightningModule):
         super(TransformerWithCLS, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
-        # 嵌入层将输入维度转换为模型期望的输出维度
         self.embedding = nn.Linear(in_channels, out_channels)
         self.local_transformer = local_Transformer(channels=out_channels)
 
@@ -149,14 +148,11 @@ class CosineSimilarityLoss(pl.LightningModule):
         super().__init__()
 
     def forward(self, tensor1, tensor2):
-        # 计算余弦相似度
-        similarity = nn.functional.cosine_similarity(tensor1, tensor2, dim=-1)  # 假设输入是两个形状为 (batch_size, 256, 768) 的张量
+        similarity = nn.functional.cosine_similarity(tensor1, tensor2, dim=-1)
 
-        # 将余弦相似度映射到 [0, 1] 范围内
         similarity = (similarity + 1.0) / 2.0
 
-        # 计算损失（可以根据需求选择不同的损失函数）
-        loss = 1.0 - similarity  # 例如，使用 1 减去相似性作为损失
+        loss = 1.0 - similarity
 
         return loss.mean()
 
@@ -189,31 +185,15 @@ class FeatureWithRelativePosition(nn.Module):
         self.silu = nn.SiLU()
 
     def compute_distance_matrix(self, positions):
-        """
-        计算相对距离矩阵
-        参数:
-            positions: 每个点的位置坐标，形状为 (bs, num_points, 3)
-        返回:
-            距离矩阵，形状为 (bs, num_points, num_points)
-        """
-        # positions 形状为 (bs, num_points, 3)
-        diff = positions.unsqueeze(2) - positions.unsqueeze(1)  # 计算两两点之间的坐标差，形状为 (bs, num_points, num_points, 3)
-        distance_matrix = torch.sqrt((diff ** 2).sum(-1))  # 计算欧氏距离，形状为 (bs, num_points, num_points)
+
+        diff = positions.unsqueeze(2) - positions.unsqueeze(1)
+        distance_matrix = torch.sqrt((diff ** 2).sum(-1))
         return distance_matrix
 
     def forward(self, positions):
-        """
-        参数:
-            features: 输入特征，形状为 (bs, 1024, 64)
-            positions: 每个点的位置坐标，形状为 (bs, 1024, 3)
-        返回:
-            包含相对位置信息的特征，形状为 (bs, 1024, 64)
-        """
-        # 计算距离矩阵
-        distance_matrix = self.compute_distance_matrix(positions)  # (bs, 1024, 1024)
 
-        # 将距离矩阵通过 Linear 层处理，得到形状 (bs, 1024, 64)
-        distance_features = self.distance_linear(distance_matrix)  # (bs, 1024, 64)
+        distance_matrix = self.compute_distance_matrix(positions)
+        distance_features = self.distance_linear(distance_matrix)
         distance_features = self.layer_norm(distance_features)
         distance_features = self.silu(distance_features)
 
@@ -245,10 +225,10 @@ class TransfomerDecoder(nn.Module):
                                                    norm_first=True, dim_feedforward=dim_feedforward)
         self.decoder = nn.TransformerDecoder(decoder_layer, num_layers=num_layers)
 
-    def forward(self, memory):  # memory: (bs, 257, 768)
+    def forward(self, memory):
         bs = memory.size(0)
         tgt = self.queries.expand(bs, -1, -1)
-        out = self.decoder(tgt, memory)  # (bs, 77, 768)
+        out = self.decoder(tgt, memory)
         return out
 
 
@@ -332,31 +312,26 @@ class Pct(pl.LightningModule):
                     s_id = s_id.item()
                     key_model = f"sub{s_id}_{num_windows}_{window_size}"
 
-                    # 找出当前受试者对应的样本位置
-                    indices = (subj_id == s_id).nonzero(as_tuple=False).squeeze(1)  # shape: [n_i]
-                    x_group = x[indices]  # [n_i, N, D]
-                    out_group = self.multi_scales[key_model](x_group)  # [n_i, N, D']
 
-                    # 保存到 group_outputs 的正确位置
+                    indices = (subj_id == s_id).nonzero(as_tuple=False).squeeze(1)
+                    x_group = x[indices]
+                    out_group = self.multi_scales[key_model](x_group)
                     for i, idx in enumerate(indices):
-                        group_outputs[idx] = out_group[i:i + 1]  # 保留 batch dim
-
-                # 重新拼接为 [B, N, D']
+                        group_outputs[idx] = out_group[i:i + 1]
                 feature_tensor = torch.cat(group_outputs, dim=0)
                 features.append(feature_tensor)
         else:
             for num_windows, window_size in self.multi_scale_size:
                 key = f"{num_windows}_{window_size}"
-                fmri_input = fmri_dict[key]  # [B, N, D]
+                fmri_input = fmri_dict[key]
                 feature = self.multi_scales[key](fmri_input)
                 features.append(feature)
-        # multi_scale_feature = torch.stack(features, dim=0).sum(dim=0)
         multi_scale_feature = torch.cat(features, dim=1)
         batch_size, _, _ = multi_scale_feature.shape
 
         cls_token = torch.zeros(batch_size, 1, 768, device=self.device)
         multi_scale_feature = torch.cat((multi_scale_feature, cls_token), dim=1)
-        x_1 = self.pt_last(multi_scale_feature)  # (2,8192,4096)
+        x_1 = self.pt_last(multi_scale_feature)
         x_1 = self.decoder(x_1)
         x_2 = self.projector(x_1)
         return x_1, x_2
@@ -368,7 +343,6 @@ class Pct(pl.LightningModule):
 
         label = label.squeeze()
         label = label.squeeze()
-        # data = data.permute(0, 2, 1).contiguous()
         x_1, x_2 = self(fmri_dict, subject_id)
 
 
@@ -417,7 +391,6 @@ class Pct(pl.LightningModule):
                 continue
             if any(nd in name for nd in ["bias", "pos_embed", "scale_embed", "norm", "ln", "cls_token", "scale_w"]):
                 no_decay.append(param)
-                print("88888888888888800000000000000:", name)
             else:
                 decay.append(param)
 

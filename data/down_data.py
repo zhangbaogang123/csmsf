@@ -31,10 +31,9 @@ def skip_if_complete(local_path: str, size: int) -> bool:
 
 def download_one_with_progress(bucket: str, key: str, local_path: str, overall_pbar=None):
     """Download a single S3 object with a per-file tqdm bar and optional overall pbar."""
-    # Query object size (head_object works for public objects as well)
     size = s3.head_object(Bucket=bucket, Key=key)['ContentLength']
 
-    # Skip if completed
+
     if skip_if_complete(local_path, size):
         tqdm.write(f"✔ Skipped (already complete): {local_path}")
         if overall_pbar is not None:
@@ -50,8 +49,7 @@ def download_one_with_progress(bucket: str, key: str, local_path: str, overall_p
         if overall_pbar is not None:
             overall_pbar.update(bytes_amount)
 
-    # NOTE: boto3 will overwrite if file exists; no true "resume" from partials.
-    # If you need resume, consider aws s3 cp with --no-sign-request, or implement ranged GETs.
+
     s3.download_file(bucket, key, local_path, Callback=_cb)
     file_pbar.close()
     tqdm.write(f"↓ Downloaded: {key} -> {local_path}")
@@ -78,7 +76,7 @@ def download_prefix_with_progress(bucket: str, prefix: str, local_root: str):
             download_one_with_progress(bucket, key, local_path, overall_pbar)
 
 # ====== 3) Base output directory ======
-BASE_DIR = "/root/data-tmp/new_data"
+BASE_DIR = "/root/data-tmp/data"
 
 # ====== 4) Downloads ======
 if __name__ == "__main__":

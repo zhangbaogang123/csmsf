@@ -12,24 +12,16 @@ from pathlib import Path
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-# ========== 配置区域 ==========
 SUBJECTS = list(range(1, 9))  # 1..8
 SPLITS = ["train", "test"]    # 两个子集都处理
 # 三组 (n_windows, window_size)
 CONFIGS = [(1024, 64), (512, 128), (256, 256)]
 
-# 窗口分组文件所在根目录，里边按 group_{n_windows}_{window_size}/windows_*.npy
+IN_ROOT = Path("/your_data_dir/data/processed_data")
 
-
-# 输入：逐样本的标准化 fMRI
-#   /root/data-tmp/new_data/processed_data/subjXX/fsaverage_not_mean_1000_new/{train|test}/*.npy
-IN_ROOT = Path("/root/data-tmp/new_data/processed_data")
-
-# 输出：拼接后的窗口特征
-#   /root/data-tmp/new_data/processed_data/subjXX/fsaverage_not_mean_1000_new_{nwin}_{wsize}/{train|test}/*.npy
 OUT_SUFFIX_TEMPLATE = "fsaverage_not_mean_1000_new_{nwin}_{wsize}"
 
-ROOT = Path(__file__).parent           # 当前脚本所在目录
+ROOT = Path(__file__).parent
 META = ROOT / "metadata"
 
 # 顶点索引（含重复）的保存路径（全局）

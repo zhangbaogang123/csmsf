@@ -71,7 +71,7 @@ s_nums = [40, 40, 32, 30, 40, 32, 40, 30]
 # 感兴趣区
 l_voxel_indices = np.empty((0, 0)).astype(int)
 r_voxel_indices = np.empty((0, 0)).astype(int)
-base_label_dir = "/root/data-tmp/data/nsddata/freesurfer/fsaverage/label"
+base_label_dir = "/your_data_dir/data/nsddata/freesurfer/fsaverage/label"
 all_files = os.listdir(base_label_dir)
 probmap_files = [f for f in all_files if "probmap" in f]
 for file_name in probmap_files:
@@ -86,13 +86,10 @@ for file_name in probmap_files:
     elif file_name.startswith("rh."):
         r_voxel_indices = np.append(r_voxel_indices, voxel_indices)
 num_voxel = len(l_voxel_indices) + len(r_voxel_indices)
-# 加载刺激图片
-# f_stim = h5py.File('/home/zbg/data/nsd_data/nsddata_stimuli/stimuli/nsd/nsd_stimuli.hdf5', 'r')
-# stim = f_stim['imgBrick'][:]
 
 print("Stimuli are loaded.")
 
-stim_order_f = '/root/data-pub/fMRI/NSD/natural-scenes-dataset/nsddata/experiments/nsd/nsd_expdesign.mat'
+stim_order_f = '/your_data_dir/data/nsddata/experiments/nsd/nsd_expdesign.mat'
 stim_order = loadmat(stim_order_f)
 
 sig_train = {}
@@ -124,8 +121,8 @@ num_train, num_test = len(my_train_im_idx), len(test_im_idx)
 
 
 fmri = np.zeros((num_trials, num_voxel, 4)).astype(np.float32)
-betas_dir = '/root/data-pub/fMRI/NSD/natural-scenes-dataset/nsddata_betas/ppdata/subj{:02d}/betas_fithrf_GLMdenoise_RR/'.format(sub)
-surf_base_dir = "/root/data-tmp/data/nsddata/freesurfer/fsaverage/surf/"
+betas_dir = '/your_data_dir/data/nsddata_betas/ppdata/subj{:02d}/betas_fithrf_GLMdenoise_RR/'.format(sub)
+surf_base_dir = "/your_data_dir/data/nsddata/freesurfer/fsaverage/surf/"
 l_surf_dir = surf_base_dir + "lh.pial"
 r_surf_dir = surf_base_dir + "rh.pial"
 l_vertices, l_faces = nib.freesurfer.read_geometry(l_surf_dir)
@@ -167,14 +164,11 @@ for i, idx in enumerate(my_train_im_idx):
     print(i)
 
 np.save(
-    '/root/data-tmp/new_data/processed_data/subj{:02d}/fsaverage_not_mean_1000_new/nsd_train_fmriavg_nsdgeneral_sub{}.npy'.format(
+    '/your_data_dir/data/processed_data/subj{:02d}/fsaverage_not_mean_1000_new/nsd_train_fmriavg_nsdgeneral_sub{}.npy'.format(
         sub,
         sub),
     fmri_array)
-# np.save(
-#     '/data/zbg/brain-diffuser/data/processed_data/subj{:02d}/fsaverage_not_mean_1000_new/nsd_train_stim_sub{}.npy'.format(
-#         sub, sub),
-#     stim_array)
+
 
 print("Training data is saved.")
 
@@ -188,16 +182,11 @@ for i, idx in enumerate(test_im_idx):
     fmri_sig_test_idx_stored_mean = fmri_sig_test_idx_stored.mean(axis=0)
     fmri_array[i] = fmri_sig_test_idx_stored_mean
     print(i)
-    # stim_array[i] = stim[idx]
-    # fmri_array[i] = fmri[my_sig_test[i]]
-    # print(i)
+
 
 np.save(
-    '/root/data-tmp/new_data/processed_data/subj{:02d}/fsaverage_not_mean_1000_new/nsd_test_fmriavg_nsdgeneral_sub{}.npy'.format(
+    '/your_data_dir/data/processed_data/subj{:02d}/fsaverage_not_mean_1000_new/nsd_test_fmriavg_nsdgeneral_sub{}.npy'.format(
         sub, sub), fmri_array)
-# np.save(
-#     '/data/zbg/brain-diffuser/data/processed_data/subj{:02d}/fsaverage_not_mean_1000_new/nsd_test_stim_sub{}.npy'.format(
-#         sub, sub),
-#     stim_array)
+
 
 print("Test data is saved.")

@@ -4,8 +4,8 @@ import numpy as np
 from tqdm import tqdm
 
 subjects = [f"subj0{i}" for i in range(1, 9)]
-input_root = "/root/data-tmp/data/processed_data"
-output_root = "/root/data-tmp/data/processed_data"
+input_root = "/your_data_dir/data/processed_data"
+output_root = "/your_data_dir/data/processed_data"
 latent_shape = (4, 64, 64)
 
 # === 1. 收集所有训练 latent 计算全局 min/max ===

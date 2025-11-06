@@ -26,23 +26,21 @@ from datetime import timedelta
 
 
 def seed_everything(seed=42):
-    random.seed(seed)  # Python 内置随机数种子
-    np.random.seed(seed)  # NumPy 随机数种子
-    torch.manual_seed(seed)  # PyTorch CPU 随机数种子
-    torch.cuda.manual_seed(seed)  # PyTorch GPU 随机数种子
-    torch.cuda.manual_seed_all(seed)  # 如果使用多个 GPU
-    torch.backends.cudnn.deterministic = True  # 确保 CUDA 可复现
-    torch.backends.cudnn.benchmark = False  # 关闭 cuDNN 的自动优化
-    pl.seed_everything(seed, workers=True)  # PyTorch Lightning 设定种子
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    pl.seed_everything(seed, workers=True)
 
 
 if __name__ == '__main__':
 
-    # 检查 CUDA 是否可用
     cuda_available = torch.cuda.is_available()
     print("CUDA available:", cuda_available)
 
-    # 如果 CUDA 可用，打印出 CUDA 设备的数量和名称
     if cuda_available:
         print("Number of CUDA devices:", torch.cuda.device_count())
         for i in range(torch.cuda.device_count()):

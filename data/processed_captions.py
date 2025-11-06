@@ -62,7 +62,7 @@ def loadmat(filename):
     return _check_keys(data)
 for sub in range(8):
     sub=sub+1
-    stim_order_f = '/home/zbg/data/nsd_data/nsddata/experiments/nsd/nsd_expdesign.mat'
+    stim_order_f = '/your_data_dir/data/nsddata/experiments/nsd/nsd_expdesign.mat'
     stim_order = loadmat(stim_order_f)
     sig_train = {}
     sig_test = {}
@@ -89,18 +89,18 @@ for sub in range(8):
             my_sig_test.append(idx)
     test_im_idx = list(sig_test.keys())
     num_train, num_test = len(my_train_im_idx), len(test_im_idx)
-    annots_cur = np.load('/home/zbg/brain-diffuser/data/annots/COCO_73k_annots_curated.npy')
+    annots_cur = np.load('/your_data_dir/data/annots/COCO_73k_annots_curated.npy')
 
     captions_array = np.empty((num_train, 5), dtype=annots_cur.dtype)
     for i, idx in enumerate(my_train_im_idx):
         captions_array[i, :] = annots_cur[idx, :]
         print(i)
-    np.save('/root/data-tmp/new_data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_train_cap_sub{}.npy'.format(sub, sub),
+    np.save('/your_data_dir/data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_train_cap_sub{}.npy'.format(sub, sub),
             captions_array)
 
     captions_array = np.empty((num_test, 5), dtype=annots_cur.dtype)
     for i, idx in enumerate(test_im_idx):
         captions_array[i, :] = annots_cur[idx, :]
         print(i)
-    np.save('/root/data-tmp/new_data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_test_cap_sub{}.npy'.format(sub, sub),
+    np.save('/your_data_dir/data/subj{:02d}/fsaverage_not_mean_1000/nsd_test_cap_sub{}.npy'.format(sub, sub),
             captions_array)

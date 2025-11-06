@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append('/root/brain-diffuser/versatile_diffusion')
-sys.path.append('/root/brain-diffuser/gnn')
+sys.path.append('/versatile_diffusion')
 import os
 import argparse
 # import os
@@ -88,7 +87,7 @@ def regularize_image(x):
 
 cfgm_name = 'vd_noema'
 sampler = DDIMSampler_VD
-pth = '/root/data-tmp/brain-diffuser/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
+pth = '/versatile_diffusion/pretrained/vd-four-flow-v1-0-fp16-deprecated.pth'
 cfgm = model_cfg_bank()(cfgm_name)
 net = get_model()(cfgm)
 sd = torch.load(pth, map_location='cpu')
@@ -182,7 +181,7 @@ with torch.no_grad():
         print("--------------------------------------------------------------------------")
         if use_flattent:
             print("use_flattent")
-            fmri_dir = f"/root/data-tmp/data/processed_data/subj0{sub}/fsaverage_not_mean_1000_new/{split}/sub{sub}_fmri_test_{i}.npy"
+            fmri_dir = f"/your_data_dir/data/processed_data/subj0{sub}/fsaverage_not_mean_1000_new/{split}/sub{sub}_fmri_test_{i}.npy"
             fmri = np.load(fmri_dir)  # (22492, 4)
             fmri = fmri[perm]
             fmri_multi_scale = {}
@@ -216,7 +215,7 @@ pred_img_clip = np.zeros_like(pred_vision)
 pred_text_clip = np.zeros_like(pred_text)
 print("start load train_clip")
 
-train_text_clip_dir = "/root/data-tmp/data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/train_text/".format(
+train_text_clip_dir = "/your_data_dir/data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/train_text/".format(
     sub)
 train_text_clip_file_list = os.listdir(train_text_clip_dir)
 train_text_clip_file_list = [os.path.join(train_text_clip_dir, file_name) for file_name in train_text_clip_file_list]
@@ -230,7 +229,7 @@ train_text_clip = np.stack(train_text_clips, axis=0)
 #         sub),
 #     mmap_mode='r')
 
-train_img_clip_dir = "/root/data-tmp/data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/train/".format(
+train_img_clip_dir = "/your_data_dir/data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/train/".format(
     sub)
 train_img_clip_file_list = os.listdir(train_img_clip_dir)
 train_img_clip_file_list = [os.path.join(train_img_clip_dir, file_name) for file_name in train_img_clip_file_list]
@@ -287,7 +286,7 @@ if not use_latent:
 for im_id in tqdm(range(len(pred_vision)), desc="Processing Batches"):
     print("pre:", i)
     if use_latent:
-        zim = Image.open('/root/data-tmp/brain-diffuser/results/latent/sub_{:02d}/{}/{}.png'.format(sub,latent_num, im_id))
+        zim = Image.open('/results/latent/sub_{:02d}/{}/{}.png'.format(sub,latent_num, im_id))
     zim = regularize_image(zim)
     zin = zim * 2 - 1
     zin = zin.unsqueeze(0).cuda(device_num).half()
@@ -316,19 +315,10 @@ for im_id in tqdm(range(len(pred_vision)), desc="Processing Batches"):
     shape = [n_samples, 4, h // 8, w // 8]
 
     cim = pred_vision[im_id].unsqueeze(0)
-    # cim = clip_datas[im_id].unsqueeze(0).half()
-    # ctx = pred_text[im_id].unsqueeze(0)
-    # text_dir = "/data/zbg/brain-diffuser/data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/test_text_2/test_sub_{}_{}.npy".format(
-    #     1, 1, im_id)
-    # print(text_dir)
-    # ctx = np.load(text_dir)
+
     ctx = pred_text[im_id].unsqueeze(0)
     if not use_prompt:
         ctx = utx
-    # 增加一个维度（例如，将形状从 [3, 4, 5] 转为 [1, 3, 4, 5]）
-    # ctx = ctx.unsqueeze(0).cuda(device_num).half()
-    # c[:,0] = u[:,0]
-    # z_enc = z_enc.cuda(1).half()
 
     sampler.model.model.diffusion_model.device = f'cuda:{device_num}'
     sampler.model.model.diffusion_model.half().cuda(device_num)
@@ -363,7 +353,7 @@ for im_id in tqdm(range(len(pred_vision)), desc="Processing Batches"):
     else:
         x = torch.clamp((x + 1.0) / 2.0, min=0.0, max=1.0)
         x = [tvtrans.ToPILImage()(xi) for xi in x]
-    save_path = "/root/data-tmp/brain-diffuser/results/versatile_diffusion/subj{:02d}/8_sub_{}_latent_{}_mix_0.5_text_{}/".format(
+    save_path = "/results/versatile_diffusion/subj{:02d}/8_sub_{}_latent_{}_mix_0.5_text_{}/".format(
         sub,img_num,latent_num,text_num)
     if not os.path.exists(save_path):
         os.makedirs(save_path)

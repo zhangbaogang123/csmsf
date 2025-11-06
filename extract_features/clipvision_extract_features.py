@@ -56,8 +56,8 @@ batch_size = 1
 
 for sub in range(1, 9):
     # --- 构造数据集/loader ---
-    train_path = '/root/data-tmp/new_data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_train_stim_sub{}.npy'.format(sub, sub)
-    test_path  = '/root/data-tmp/new_data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_test_stim_sub{}.npy'.format(sub, sub)
+    train_path = '/your_data-dir/data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_train_stim_sub{}.npy'.format(sub, sub)
+    test_path  = '/your_data-dir/data/processed_data/subj{:02d}/fsaverage_not_mean_1000/nsd_test_stim_sub{}.npy'.format(sub, sub)
 
     train_images = batch_generator_external_images(data_path=train_path)
     test_images  = batch_generator_external_images(data_path=test_path)
@@ -75,7 +75,7 @@ for sub in range(1, 9):
             print(f"[sub {sub:02d}] test batch {i}")
             c = net.clip_encode_vision(cin)
             test_clip[i] = c[0].cpu().numpy()
-            save_dir = '/root/data-tmp/new_data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/test/'.format(sub)
+            save_dir = '/your_data-dir/data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/test/'.format(sub)
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             save_path = save_dir + "test_clip_{:02d}_{}.npy".format(sub, i)
@@ -86,7 +86,7 @@ for sub in range(1, 9):
             print(f"[sub {sub:02d}] train batch {i}")
             c = net.clip_encode_vision(cin)
             train_clip[i] = c[0].cpu().numpy()
-            save_dir = '/root/data-tmp/new_data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/train/'.format(sub)
+            save_dir = '/your_data-dir/data/extracted_features/subj{:02d}/fsaverage_not_mean_1000/train/'.format(sub)
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             save_path = save_dir + "train_clip_{:02d}_{}.npy".format(sub, i)

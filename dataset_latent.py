@@ -2,13 +2,11 @@
 from torch.utils.data import Dataset
 import numpy as np
 import os
-import concurrent.futures
 import torch
-from collections import defaultdict
 import re
 import time
 from functools import lru_cache
-@lru_cache(maxsize=10000)  # 可根据可用内存调节
+@lru_cache(maxsize=10000)
 def cached_load_npy(path):
     with open(path, "rb") as f:
         return np.load(f, allow_pickle=False)
@@ -39,8 +37,7 @@ class FmriDataSet(Dataset):
         self.fmri_datas_dict = {f"{n}_{w}": [] for (n, w) in self.multi_scale_size}
 
         for sub in subjects:
-            # fmri_dir = "/root/data-tmp/data/processed_data/subj{:02d}/fsaverage_not_mean_1000_new_512_128/train/".format(
-            #     sub)
+
             for (n_win, win_size) in self.multi_scale_size:
                 key = f"{n_win}_{win_size}"
                 scale_tag = f"fsaverage_not_mean_1000_new_{n_win}_{win_size}"
@@ -48,10 +45,9 @@ class FmriDataSet(Dataset):
                 fmri_files = [os.path.join(fmri_dir, f) for f in os.listdir(fmri_dir)]
                 self.fmri_datas_dict[key].extend(fmri_files)
 
-            # img_dir = f"/root/data-tmp/data/extracted_features/subj{sub:02d}/fsaverage_not_mean_1000/{split}/"
-            latent_dir = "/root/data-tmp/data/processed_data/subj{:02d}/{}_latents_blurred_minmax/".format(
+            latent_dir = "/your_data_dir/data/processed_data/subj{:02d}/{}_latents_blurred_minmax/".format(
                 sub,split)
-            text_dir = f"/root/data-tmp/data/extracted_features/subj{sub:02d}/fsaverage_not_mean_1000/{split}_text/"
+            text_dir = f"/your_data_dir/data/extracted_features/subj{sub:02d}/fsaverage_not_mean_1000/{split}_text/"
 
             latent_files = [os.path.join(latent_dir, f) for f in os.listdir(latent_dir)]
             text_files = [os.path.join(text_dir, f) for f in os.listdir(text_dir)]
@@ -61,17 +57,17 @@ class FmriDataSet(Dataset):
 
         def custom_sort_fmri(file_path):
             parts = file_path.split('/')
-            file_name = parts[-1]  # 获取文件名，例如 'sub2_fmri_test_0.npy'
-            sub_num = int(file_name.split('_')[0][3:])  # 提取 'sub' 后面的数字
-            test_num = int(file_name.split('_')[-1].split('.')[0])  # 提取 'test' 后面的数字
+            file_name = parts[-1]
+            sub_num = int(file_name.split('_')[0][3:])
+            test_num = int(file_name.split('_')[-1].split('.')[0])
             return (sub_num, test_num)
 
         def custom_sort_img(file_path):
             parts = file_path.split('/')
             file_name = parts[-1]
             parts = file_name.split('_')
-            first_num = int(parts[2])  # 提取第一个数字
-            second_num = int(parts[3].split('.')[0])  # 提取第二个数字
+            first_num = int(parts[2])
+            second_num = int(parts[3].split('.')[0])
             return (first_num, second_num)
 
         for k in self.fmri_datas_dict:
@@ -102,10 +98,6 @@ class FmriDataSet(Dataset):
             subject_id = int(subject_id)
         else:
             print("not match")
-
-        # print(f"Data load time for sample {item}: {time.time() - t0:.3f}s")
-        # print(f"[PID {os.getpid()}] loading sample {item}")
-        # print(f"[PID {os.getpid()}] loading sample {item}, load time: {time.time() - t0:.3f}s")
         return fmri_multi_scale, latent, text, subject_id
 
     def __len__(self):

@@ -21,12 +21,11 @@ from diffusers.models.autoencoder_kl import AutoencoderKL  # HuggingFace Diffuse
 # ======================
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-# Subjects and data splits
 SUBJECTS = list(range(1, 9))          # subj01 ~ subj08
 SPLITS = ["train", "test"]            # Process both train / test
 
 # Data root directory
-DATA_ROOT = "/root/data-tmp/data/processed_data"  # will append subj0{n}/{split}_images
+DATA_ROOT = "/your_data-dir/data/processed_data"  # will append subj0{n}/{split}_images
 
 # Output directory suffixes (consistent with existing setup)
 LATENT_DIRNAME = "{}_latents_blurred"    # e.g., "train_latents_blurred"
@@ -34,7 +33,7 @@ LATENT_DIRNAME = "{}_latents_blurred"    # e.g., "train_latents_blurred"
 # Model and processing flags
 USE_BLU_RRED_TRAINING = True         # Apply median blur before feeding to VAE
 
-AUTOENC_CKPT = "/root/data-tmp/brain-diffuser/sd_image_var_autoenc.pth"
+AUTOENC_CKPT = "versatile_diffusion/pretrained/sd_image_var_autoenc.pth"
 
 
 # ======================
@@ -112,12 +111,7 @@ class batch_generator_external_images(Dataset):
     def __len__(self):
         return len(self.im)
 
-
-# ======================
-# Main process: 8 subjects + train/test
-# ======================
 if __name__ == "__main__":
-    # Load model once and reuse across loops
     autoenc = load_vae(DEVICE)
 
     total_files, done_files, skipped_files = 0, 0, 0
@@ -150,7 +144,6 @@ if __name__ == "__main__":
                         img_path, autoenc, DEVICE
                     )
 
-                    # Remove batch dimension and save
                     np.save(
                         os.path.join(latent_dir, f"sub{sub}_latent_{split}_{base}.npy"),
                         latent.squeeze(0).cpu().numpy()
