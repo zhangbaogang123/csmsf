@@ -40,4 +40,6 @@ python pl_train_clip.py
 ```bash
 python pl_train_text.py
 ```
-
+```bash
+python test.py
+```
