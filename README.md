@@ -45,4 +45,14 @@ python pl_train_text.py
 python pl_train_latent.py
 ```
 
+# Inference
+### 1) inference fmri to blurry image
+```bash
+python reconstruce_latent_img_demo.py
+```
+### 1) inference fmri to final image
+```bash
+python reconstruce_final_image.py
+```
+
 
