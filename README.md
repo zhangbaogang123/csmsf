@@ -32,14 +32,17 @@ python ./extract_features/extract_latent_features.py
 python ./extract_features/normal_latent_features.py
 ```
 # Train
-### 1) train fmri to image
+### 1) train fmri to clip image emb 
 ```bash
 python pl_train_clip.py
 ```
-### 2) train fmri to text
+### 2) train fmri to clip text emb
 ```bash
 python pl_train_text.py
 ```
+### 3) train fmri to VAE latent
 ```bash
-python test.py
+python pl_train_latent.py
 ```
+
+
