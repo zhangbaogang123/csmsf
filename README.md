@@ -70,8 +70,8 @@ python pl_train_latent.py
 We provide pretrained CSMSF models on [Hugging Face](https://huggingface.co/zhangbaogang/csmsf/tree/main).  
 If you prefer not to train the models from scratch, you can directly use our released checkpoints:
 
-- `fmri2img_emb.ckpt` ¡ª for fMRI-to-image embedding reconstruction  
-- `fmri2text_emb.ckpt` ¡ª for fMRI-to-text embedding reconstruction  
+- `fmri2img_emb.ckpt` - for fMRI-to-image embedding reconstruction  
+- `fmri2text_emb.ckpt` - for fMRI-to-text embedding reconstruction  
 
 Simply download them from the link above and place them in the corresponding directory before running the inference scripts.
 ### 1) inference fmri to blurry image
